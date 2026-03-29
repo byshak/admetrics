@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <!--
+    AdMetrics — Ecommerce Ad Budget Planner
+    © 2026 AdMetrics by G. Shakeel. All rights reserved.
+    Unauthorised copying, modification, distribution or use of this software is strictly prohibited.
+  -->
+  <title>AdMetrics — Ecommerce Ad Budget Planner</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Noto+Sans+Arabic:wght@400;600;700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f2eb; --card: #ffffff; --border: #e0dbd0; --text: #1a1814; --muted: #8a8478;
+      --meta: #1877f2; --google: #ea4335; --accent: #ff5c00; --accent-light: #fff0e8;
+      --green: #00a86b; --green-light: #e8f8f2; --red: #e53935; --red-light: #ffeaea;
+      --font: 'Nunito', sans-serif;
+    }
+    body.lang-ar { --font: 'Noto Sans Arabic', sans-serif; }
+    body.lang-zh { --font: 'Noto Sans SC', sans-serif; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; padding: 2rem 1rem 4rem; }
+    body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
+    .container { position: relative; z-index: 1; max-width: 940px; margin: 0 auto; }
+
+    /* Toolbar */
+    .toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 2rem; animation: fadeUp 0.5s ease both; }
+    .toolbar-group { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; }
+    .toolbar-label { font-size: 0.7rem; color: var(--muted); margin-right: 0.2rem; font-family: var(--font); font-weight: 600; }
+    .tool-btn { padding: 0.35rem 0.8rem; border-radius: 20px; border: 1.5px solid var(--border); background: var(--card); font-size: 0.7rem; font-family: var(--font); cursor: pointer; color: var(--muted); transition: all 0.18s; font-weight: 700; }
+    .tool-btn:hover { border-color: var(--accent); color: var(--text); }
+    .tool-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .tool-btn.lang-active { background: var(--text); border-color: var(--text); color: #fff; }
+    .currency-select { padding: 0.35rem 0.7rem; border-radius: 20px; border: 1.5px solid var(--border); background: var(--card); font-size: 0.7rem; font-family: var(--font); cursor: pointer; color: var(--text); font-weight: 700; outline: none; transition: border-color 0.2s; }
+    .currency-select:focus { border-color: var(--accent); }
+
+    /* Header */
+    header { margin-bottom: 2rem; animation: fadeUp 0.6s 0.05s ease both; }
+    .brand { font-family: var(--font); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.4rem; }
+    h1 { font-family: var(--font); font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 800; line-height: 1.05; }
+    .subtitle { margin-top: 0.4rem; font-size: 0.75rem; color: var(--muted); font-family: var(--font); }
+    .header-row { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+
+    /* Period selector */
+    .period-selector { display: flex; gap: 0.4rem; margin-bottom: 1.5rem; animation: fadeUp 0.6s 0.08s ease both; }
+    .period-btn { padding: 0.45rem 1.2rem; border-radius: 20px; border: 1.5px solid var(--border); background: var(--card); font-family: var(--font); font-size: 0.75rem; font-weight: 700; cursor: pointer; color: var(--muted); transition: all 0.2s; }
+    .period-btn:hover { border-color: var(--accent); color: var(--text); }
+    .period-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    /* Platform tabs */
+    .platform-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; animation: fadeUp 0.6s 0.1s ease both; }
+    .tab { padding: 0.5rem 1.1rem; border-radius: 20px; border: 1.5px solid var(--border); background: var(--card); font-family: var(--font); font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all 0.2s; color: var(--muted); }
+    .tab:hover { border-color: var(--accent); color: var(--text); }
+    .tab.active-meta { border-color: var(--meta); background: #e8f0fe; color: var(--meta); }
+    .tab.active-tiktok { border-color: #000; background: #111; color: #fff; }
+    .tab.active-google { border-color: var(--google); background: #fdecea; color: var(--google); }
+    .platform-pill { display: inline-flex; align-items: center; padding: 0.25rem 0.8rem; border-radius: 20px; font-size: 0.65rem; font-family: var(--font); font-weight: 700; }
+    .pill-meta { background: #e8f0fe; color: var(--meta); }
+    .pill-tiktok { background: #111; color: #fff; }
+    .pill-google { background: #fdecea; color: var(--google); }
+
+    /* Grid */
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; animation: fadeUp 0.6s 0.15s ease both; }
+    @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+    .card { background: var(--card); border: 1.5px solid var(--border); border-radius: 16px; padding: 1.25rem; }
+    .card-title { font-family: var(--font); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.4rem; }
+    .card-title .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+    .field { margin-bottom: 0.9rem; }
+    .field:last-child { margin-bottom: 0; }
+    label { display: block; font-size: 0.7rem; color: var(--muted); margin-bottom: 0.3rem; font-family: var(--font); font-weight: 600; }
+    .input-wrap { position: relative; }
+    .input-prefix { position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); font-size: 0.85rem; color: var(--muted); pointer-events: none; font-weight: 700; }
+    input[type=number] { width: 100%; background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px; color: var(--text); font-family: var(--font); font-size: 0.9rem; font-weight: 600; padding: 0.6rem 0.8rem 0.6rem 2rem; outline: none; transition: border-color 0.2s; -moz-appearance: textfield; }
+    input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+    input[type=number]:focus { border-color: var(--accent); }
+
+    /* Results */
+    .results-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 1rem; animation: fadeUp 0.6s 0.25s ease both; }
+    @media (max-width: 700px) { .results-grid { grid-template-columns: repeat(2,1fr); } }
+    .result-card { background: var(--card); border: 1.5px solid var(--border); border-radius: 16px; padding: 1.1rem; position: relative; overflow: hidden; transition: transform 0.2s; }
+    .result-card:hover { transform: translateY(-2px); }
+    .result-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent); border-radius: 16px 16px 0 0; }
+    .result-card.green::before { background: var(--green); }
+    .result-card.blue::before { background: var(--meta); }
+    .result-label { font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem; font-family: var(--font); font-weight: 800; }
+    .result-value { font-family: var(--font); font-size: 1.45rem; font-weight: 800; line-height: 1; }
+    .result-value.green { color: var(--green); }
+    .result-value.red { color: var(--red); }
+    .result-sub { font-size: 0.63rem; color: var(--muted); margin-top: 0.35rem; font-family: var(--font); }
+
+    /* Split */
+    .split-card { background: var(--card); border: 1.5px solid var(--border); border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem; animation: fadeUp 0.6s 0.35s ease both; }
+    .split-row { display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0; border-bottom: 1px solid var(--border); font-size: 0.8rem; }
+    .split-row:last-child { border-bottom: none; }
+    .split-label { color: var(--muted); font-family: var(--font); font-weight: 600; }
+    .split-value { font-family: var(--font); font-weight: 800; }
+    .bar-wrap { margin-top: 0.5rem; height: 8px; background: var(--bg); border-radius: 20px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 20px; background: var(--accent); transition: width 0.5s cubic-bezier(.4,0,.2,1); }
+    .bar-fill.green { background: var(--green); }
+    .bar-fill.red { background: var(--red); }
+    .divider { height: 1.5px; background: var(--border); margin: 1rem 0; }
+
+    /* Forecast */
+    .forecast-card { background: var(--card); border: 1.5px solid var(--border); border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem; animation: fadeUp 0.6s 0.45s ease both; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+    th { font-family: var(--font); font-size: 0.63rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding: 0.5rem 0.8rem; text-align: left; border-bottom: 1.5px solid var(--border); font-weight: 800; }
+    td { padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border); font-family: var(--font); font-weight: 600; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--bg); }
+    td.pos { color: var(--green); font-weight: 700; }
+    td.neg { color: var(--red); font-weight: 700; }
+    .badge { display: inline-block; padding: 0.2rem 0.7rem; border-radius: 20px; font-size: 0.63rem; font-family: var(--font); font-weight: 800; }
+    .badge-green { background: var(--green-light); color: var(--green); }
+    .badge-red { background: var(--red-light); color: var(--red); }
+    .badge-orange { background: var(--accent-light); color: var(--accent); }
+
+    footer { text-align: center; font-size: 0.65rem; color: var(--muted); margin-top: 3rem; line-height: 1.9; font-family: var(--font); animation: fadeUp 0.6s 0.55s ease both; }
+    footer strong { color: var(--accent); font-family: var(--font); letter-spacing: 0.1em; font-weight: 800; }
+
+    body[dir="rtl"] .input-prefix { left: auto; right: 0.8rem; }
+    body[dir="rtl"] input[type=number] { padding: 0.6rem 2rem 0.6rem 0.8rem; text-align: right; }
+    body[dir="rtl"] th { text-align: right; }
+    body[dir="rtl"] .split-row { flex-direction: row-reverse; }
+    body[dir="rtl"] .header-row { flex-direction: row-reverse; }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body dir="ltr">
+<div class="container">
+
+  <!-- Toolbar: Currency + Language -->
+  <div class="toolbar">
+    <div class="toolbar-group">
+      <span class="toolbar-label" data-i18n="currency">Currency:</span>
+      <select class="currency-select" id="currencySelect" onchange="calculate()">
+        <option value="GBP">£ GBP</option>
+        <option value="USD">$ USD</option>
+        <option value="EUR">€ EUR</option>
+        <option value="AED">د.إ AED</option>
+        <option value="PKR">₨ PKR</option>
+        <option value="AUD">A$ AUD</option>
+        <option value="CAD">C$ CAD</option>
+        <option value="SAR">﷼ SAR</option>
+        <option value="INR">₹ INR</option>
+        <option value="CNY">¥ CNY</option>
+      </select>
+    </div>
+    <div class="toolbar-group">
+      <span style="font-size:1rem">🌐</span>
+      <button class="tool-btn lang-active" onclick="setLang('en',this)">EN</button>
+      <button class="tool-btn" onclick="setLang('fr',this)">FR</button>
+      <button class="tool-btn" onclick="setLang('es',this)">ES</button>
+      <button class="tool-btn" onclick="setLang('de',this)">DE</button>
+      <button class="tool-btn" onclick="setLang('ar',this)">AR</button>
+      <button class="tool-btn" onclick="setLang('zh',this)">中文</button>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="header-row">
+      <div>
+        <div class="brand">AdMetrics</div>
+        <h1><span data-i18n="title1">Ad Budget</span> <span style="color:var(--accent)" data-i18n="title2">Planner</span></h1>
+        <p class="subtitle" data-i18n="subtitle">ROAS · Break-even · Budget Split · Revenue Forecast</p>
+      </div>
+      <div id="platform-pill" class="platform-pill pill-meta">◆ META ADS</div>
+    </div>
+  </header>
+
+  <!-- Period Selector -->
+  <div class="period-selector">
+    <button class="period-btn" onclick="setPeriod('daily',this)" data-i18n="p_daily">Daily</button>
+    <button class="period-btn" onclick="setPeriod('weekly',this)" data-i18n="p_weekly">Weekly</button>
+    <button class="period-btn active" onclick="setPeriod('monthly',this)" data-i18n="p_monthly">Monthly</button>
+  </div>
+
+  <!-- Platform Tabs -->
+  <div class="platform-tabs">
+    <button class="tab active-meta" onclick="setPlatform('meta',this)" data-i18n="p_meta">Facebook / Meta</button>
+    <button class="tab" onclick="setPlatform('tiktok',this)" data-i18n="p_tiktok">TikTok Ads</button>
+    <button class="tab" onclick="setPlatform('google',this)" data-i18n="p_google">Google Ads</button>
+  </div>
+
+  <!-- Inputs -->
+  <div class="grid">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span><span data-i18n="s_budget">Budget & Sales</span></div>
+      <div class="field">
+        <label id="label-budget" data-i18n="l_budget">Monthly Ad Budget</label>
+        <div class="input-wrap"><span class="input-prefix" id="currency-symbol">£</span>
+        <input type="number" id="budget" value="3000" min="0" oninput="calculate()"/></div>
+      </div>
+      <div class="field">
+        <label data-i18n="l_aov">Average Order Value (AOV)</label>
+        <div class="input-wrap"><span class="input-prefix" id="currency-symbol-2">£</span>
+        <input type="number" id="aov" value="65" min="0" oninput="calculate()"/></div>
+      </div>
+      <div class="field">
+        <label data-i18n="l_cogs">Product Cost (COGS)</label>
+        <div class="input-wrap"><span class="input-prefix" id="currency-symbol-3">£</span>
+        <input type="number" id="cogs" value="20" min="0" oninput="calculate()"/></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span><span data-i18n="s_perf">Performance Metrics</span></div>
+      <div class="field">
+        <label data-i18n="l_roas">Target ROAS</label>
+        <div class="input-wrap"><span class="input-prefix">×</span>
+        <input type="number" id="roas" value="3.5" min="0" step="0.1" oninput="calculate()"/></div>
+      </div>
+      <div class="field">
+        <label data-i18n="l_cvr">Conversion Rate (%)</label>
+        <div class="input-wrap"><span class="input-prefix">%</span>
+        <input type="number" id="cvr" value="2.5" min="0" step="0.1" oninput="calculate()"/></div>
+      </div>
+      <div class="field">
+        <label data-i18n="l_other">Other Costs (shipping, fees, returns, taxes)</label>
+        <div class="input-wrap"><span class="input-prefix" id="currency-symbol-4">£</span>
+        <input type="number" id="othercosts" value="300" min="0" oninput="calculate()"/></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="results-grid">
+    <div class="result-card">
+      <div class="result-label" data-i18n="r_revenue">Projected Revenue</div>
+      <div class="result-value" id="res-revenue">—</div>
+      <div class="result-sub" data-i18n="r_revenue_sub">from ad spend</div>
+    </div>
+    <div class="result-card green">
+      <div class="result-label" data-i18n="r_profit">Net Profit</div>
+      <div class="result-value green" id="res-profit">—</div>
+      <div class="result-sub" id="res-margin">margin —</div>
+    </div>
+    <div class="result-card blue">
+      <div class="result-label" data-i18n="r_orders">Est. Orders</div>
+      <div class="result-value" id="res-orders">—</div>
+      <div class="result-sub" id="res-clicks">— clicks</div>
+    </div>
+    <div class="result-card">
+      <div class="result-label" data-i18n="r_beroas">Break-even ROAS</div>
+      <div class="result-value" id="res-beroas">—</div>
+      <div class="result-sub" id="res-bestatus">—</div>
+    </div>
+  </div>
+
+  <!-- Budget Split -->
+  <div class="split-card">
+    <div class="card-title"><span class="dot"></span><span data-i18n="s_split">Budget Split</span></div>
+    <div class="split-row"><span class="split-label" data-i18n="l_daily_s">Daily</span><span class="split-value" id="split-daily">—</span></div>
+    <div class="split-row"><span class="split-label" data-i18n="l_weekly_s">Weekly</span><span class="split-value" id="split-weekly">—</span></div>
+    <div class="split-row"><span class="split-label" data-i18n="l_monthly_s">Monthly</span><span class="split-value" id="split-monthly">—</span></div>
+    <div class="split-row"><span class="split-label" data-i18n="l_test">Testing Budget (20%)</span><span class="split-value" id="split-test">—</span></div>
+    <div class="split-row"><span class="split-label" data-i18n="l_scale">Scaling Budget (80%)</span><span class="split-value" id="split-scale">—</span></div>
+    <div class="divider"></div>
+    <div class="card-title" style="margin-bottom:0.5rem"><span class="dot"></span><span data-i18n="s_efficiency">Spend Efficiency</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:0.75rem;margin-bottom:0.3rem">
+      <span style="color:var(--muted);font-family:var(--font);font-weight:600" data-i18n="l_spendpct">Ad Spend as % of Revenue</span>
+      <span id="bar-pct" style="font-family:var(--font);font-weight:800">—</span>
+    </div>
+    <div class="bar-wrap"><div class="bar-fill" id="spend-bar" style="width:0%"></div></div>
+  </div>
+
+  <!-- Forecast -->
+  <div class="forecast-card">
+    <div class="card-title" style="margin-bottom:1rem"><span class="dot"></span><span data-i18n="s_forecast" id="forecast-title">6-Month Revenue Forecast (10% monthly growth)</span></div>
+    <table>
+      <thead><tr>
+        <th data-i18n="t_period">Period</th>
+        <th data-i18n="t_spend">Ad Spend</th>
+        <th data-i18n="t_revenue">Revenue</th>
+        <th data-i18n="t_gross">Gross Profit</th>
+        <th data-i18n="t_net">Net Profit</th>
+        <th data-i18n="t_status">Status</th>
+      </tr></thead>
+      <tbody id="forecast-body"></tbody>
+    </table>
+  </div>
+
+  <footer>
+    <strong>ADMETRICS</strong><br>
+    © 2026 AdMetrics by G. Shakeel. All rights reserved.<br>
+    <span data-i18n="footer_note">For planning purposes only. Actual results may vary.</span>
+  </footer>
+</div>
+
+<script>
+// ── Currencies ─────────────────────────────────────────────────
+const currencies = {
+  GBP: { symbol: '£', name: 'GBP' },
+  USD: { symbol: '$', name: 'USD' },
+  EUR: { symbol: '€', name: 'EUR' },
+  AED: { symbol: 'AED ', name: 'AED' },
+  PKR: { symbol: '₨', name: 'PKR' },
+  AUD: { symbol: 'A$', name: 'AUD' },
+  CAD: { symbol: 'C$', name: 'CAD' },
+  SAR: { symbol: '﷼', name: 'SAR' },
+  INR: { symbol: '₹', name: 'INR' },
+  CNY: { symbol: '¥', name: 'CNY' },
+};
+
+function getCurrency() {
+  const sel = document.getElementById('currencySelect').value;
+  return currencies[sel] || currencies['GBP'];
+}
+
+function updateCurrencySymbols() {
+  const sym = getCurrency().symbol;
+  ['currency-symbol','currency-symbol-2','currency-symbol-3','currency-symbol-4'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = sym;
+  });
+}
+
+// ── Period ─────────────────────────────────────────────────────
+let period = 'monthly'; // daily | weekly | monthly
+
+function setPeriod(p, btn) {
+  period = p;
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // Update budget label
+  const T = i18n[lang];
+  document.getElementById('label-budget').textContent =
+    p === 'daily' ? T.l_budget_daily :
+    p === 'weekly' ? T.l_budget_weekly :
+    T.l_budget;
+  calculate();
+}
+
+// Convert input budget to monthly equivalent
+function toMonthly(val) {
+  if (period === 'daily')  return val * 30.4;
+  if (period === 'weekly') return val * 4.33;
+  return val;
+}
+
+// ── Translations ───────────────────────────────────────────────
+const i18n = {
+  en: { currency:'Currency:', title1:'Ad Budget', title2:'Planner', subtitle:'ROAS · Break-even · Budget Split · Revenue Forecast', p_meta:'Facebook / Meta', p_tiktok:'TikTok Ads', p_google:'Google Ads', p_daily:'Daily', p_weekly:'Weekly', p_monthly:'Monthly', s_budget:'Budget & Sales', l_budget:'Monthly Ad Budget', l_budget_daily:'Daily Ad Budget', l_budget_weekly:'Weekly Ad Budget', l_aov:'Average Order Value (AOV)', l_cogs:'Product Cost (COGS)', s_perf:'Performance Metrics', l_roas:'Target ROAS', l_cvr:'Conversion Rate (%)', l_other:'Other Costs (shipping, fees, returns, taxes)', r_revenue:'Projected Revenue', r_revenue_sub:'from ad spend', r_profit:'Net Profit', r_orders:'Est. Orders', r_beroas:'Break-even ROAS', s_split:'Budget Split', l_daily_s:'Daily', l_weekly_s:'Weekly', l_monthly_s:'Monthly', l_test:'Testing Budget (20%)', l_scale:'Scaling Budget (80%)', s_efficiency:'Spend Efficiency', l_spendpct:'Ad Spend as % of Revenue', s_forecast:'6-Month Revenue Forecast (10% monthly growth)', t_period:'Period', t_spend:'Ad Spend', t_revenue:'Revenue', t_gross:'Gross Profit', t_net:'Net Profit', t_status:'Status', b_profitable:'Profitable', b_near:'Near break-even', b_loss:'Loss', margin:'margin', clicks:'clicks needed', above_be:'✓ Above break-even', below_be:'✗ Below break-even', months:['Month 1','Month 2','Month 3','Month 4','Month 5','Month 6'], weeks:['Week 1','Week 2','Week 3','Week 4','Week 5','Week 6'], days:['Day 1','Day 2','Day 3','Day 4','Day 5','Day 6'], footer_note:'For planning purposes only. Actual results may vary.' },
+  fr: { currency:'Devise :', title1:'Budget Pub', title2:'Planificateur', subtitle:'ROAS · Seuil · Répartition · Prévisions', p_meta:'Facebook / Meta', p_tiktok:'TikTok Ads', p_google:'Google Ads', p_daily:'Quotidien', p_weekly:'Hebdo', p_monthly:'Mensuel', s_budget:'Budget & Ventes', l_budget:'Budget pub mensuel', l_budget_daily:'Budget pub quotidien', l_budget_weekly:'Budget pub hebdomadaire', l_aov:'Valeur moyenne commande (AOV)', l_cogs:'Coût produit (COGS)', s_perf:'Indicateurs de performance', l_roas:'ROAS cible', l_cvr:'Taux de conversion (%)', l_other:'Autres coûts (livraison, frais, retours, taxes)', r_revenue:'Revenu projeté', r_revenue_sub:'depuis la pub', r_profit:'Bénéfice net', r_orders:'Commandes est.', r_beroas:'ROAS seuil', s_split:'Répartition budget', l_daily_s:'Quotidien', l_weekly_s:'Hebdomadaire', l_monthly_s:'Mensuel', l_test:'Budget test (20%)', l_scale:'Budget scaling (80%)', s_efficiency:'Efficacité des dépenses', l_spendpct:'Dépenses pub en % du revenu', s_forecast:'Prévisions 6 mois (croissance 10%/mois)', t_period:'Période', t_spend:'Dépenses pub', t_revenue:'Revenu', t_gross:'Bénéfice brut', t_net:'Bénéfice net', t_status:'Statut', b_profitable:'Rentable', b_near:'Proche seuil', b_loss:'Perte', margin:'marge', clicks:'clics nécessaires', above_be:'✓ Au-dessus du seuil', below_be:'✗ En dessous du seuil', months:['Mois 1','Mois 2','Mois 3','Mois 4','Mois 5','Mois 6'], weeks:['Sem. 1','Sem. 2','Sem. 3','Sem. 4','Sem. 5','Sem. 6'], days:['Jour 1','Jour 2','Jour 3','Jour 4','Jour 5','Jour 6'], footer_note:"À titre indicatif uniquement." },
+  es: { currency:'Moneda:', title1:'Presupuesto', title2:'Publicitario', subtitle:'ROAS · Equilibrio · División · Previsión', p_meta:'Facebook / Meta', p_tiktok:'TikTok Ads', p_google:'Google Ads', p_daily:'Diario', p_weekly:'Semanal', p_monthly:'Mensual', s_budget:'Presupuesto y Ventas', l_budget:'Presupuesto mensual', l_budget_daily:'Presupuesto diario', l_budget_weekly:'Presupuesto semanal', l_aov:'Valor medio de pedido (AOV)', l_cogs:'Coste del producto (COGS)', s_perf:'Métricas de rendimiento', l_roas:'ROAS objetivo', l_cvr:'Tasa de conversión (%)', l_other:'Otros costes (envío, comisiones, devoluciones, impuestos)', r_revenue:'Ingresos proyectados', r_revenue_sub:'del gasto publicitario', r_profit:'Beneficio neto', r_orders:'Pedidos est.', r_beroas:'ROAS equilibrio', s_split:'División del presupuesto', l_daily_s:'Diario', l_weekly_s:'Semanal', l_monthly_s:'Mensual', l_test:'Presupuesto prueba (20%)', l_scale:'Presupuesto escala (80%)', s_efficiency:'Eficiencia del gasto', l_spendpct:'Gasto pub como % de ingresos', s_forecast:'Previsión 6 meses (crecimiento 10%/mes)', t_period:'Período', t_spend:'Gasto pub', t_revenue:'Ingresos', t_gross:'Beneficio bruto', t_net:'Beneficio neto', t_status:'Estado', b_profitable:'Rentable', b_near:'Cerca del equilibrio', b_loss:'Pérdida', margin:'margen', clicks:'clics necesarios', above_be:'✓ Por encima del equilibrio', below_be:'✗ Por debajo del equilibrio', months:['Mes 1','Mes 2','Mes 3','Mes 4','Mes 5','Mes 6'], weeks:['Sem. 1','Sem. 2','Sem. 3','Sem. 4','Sem. 5','Sem. 6'], days:['Día 1','Día 2','Día 3','Día 4','Día 5','Día 6'], footer_note:'Solo para planificación.' },
+  de: { currency:'Währung:', title1:'Werbebudget', title2:'Planer', subtitle:'ROAS · Break-even · Aufteilung · Prognose', p_meta:'Facebook / Meta', p_tiktok:'TikTok Ads', p_google:'Google Ads', p_daily:'Täglich', p_weekly:'Wöchentlich', p_monthly:'Monatlich', s_budget:'Budget & Verkäufe', l_budget:'Monatl. Werbebudget', l_budget_daily:'Tägl. Werbebudget', l_budget_weekly:'Wöchentl. Werbebudget', l_aov:'Durchschn. Bestellwert (AOV)', l_cogs:'Produktkosten (COGS)', s_perf:'Leistungskennzahlen', l_roas:'Ziel-ROAS', l_cvr:'Konversionsrate (%)', l_other:'Sonstige Kosten (Versand, Gebühren, Retouren, Steuern)', r_revenue:'Progn. Umsatz', r_revenue_sub:'aus Werbeausgaben', r_profit:'Nettogewinn', r_orders:'Gesch. Bestellungen', r_beroas:'Break-even ROAS', s_split:'Budgetaufteilung', l_daily_s:'Täglich', l_weekly_s:'Wöchentlich', l_monthly_s:'Monatlich', l_test:'Testbudget (20%)', l_scale:'Skalierungsbudget (80%)', s_efficiency:'Ausgabeneffizienz', l_spendpct:'Werbeausgaben in % des Umsatzes', s_forecast:'6-Monats-Prognose (10% monatl. Wachstum)', t_period:'Zeitraum', t_spend:'Werbeausgaben', t_revenue:'Umsatz', t_gross:'Bruttogewinn', t_net:'Nettogewinn', t_status:'Status', b_profitable:'Profitabel', b_near:'Nahe Break-even', b_loss:'Verlust', margin:'Marge', clicks:'Klicks benötigt', above_be:'✓ Über Break-even', below_be:'✗ Unter Break-even', months:['Monat 1','Monat 2','Monat 3','Monat 4','Monat 5','Monat 6'], weeks:['Woche 1','Woche 2','Woche 3','Woche 4','Woche 5','Woche 6'], days:['Tag 1','Tag 2','Tag 3','Tag 4','Tag 5','Tag 6'], footer_note:'Nur zur Planung.' },
+  ar: { currency:'العملة:', title1:'ميزانية الإعلانات', title2:'المخطط', subtitle:'ROAS · التعادل · التقسيم · التوقعات', p_meta:'فيسبوك / ميتا', p_tiktok:'إعلانات تيك توك', p_google:'إعلانات جوجل', p_daily:'يومي', p_weekly:'أسبوعي', p_monthly:'شهري', s_budget:'الميزانية والمبيعات', l_budget:'ميزانية الإعلانات الشهرية', l_budget_daily:'ميزانية الإعلانات اليومية', l_budget_weekly:'ميزانية الإعلانات الأسبوعية', l_aov:'متوسط قيمة الطلب', l_cogs:'تكلفة المنتج', s_perf:'مؤشرات الأداء', l_roas:'ROAS المستهدف', l_cvr:'معدل التحويل (%)', l_other:'تكاليف أخرى (شحن، رسوم، مرتجعات، ضرائب)', r_revenue:'الإيرادات المتوقعة', r_revenue_sub:'من الإنفاق الإعلاني', r_profit:'صافي الربح', r_orders:'الطلبات المتوقعة', r_beroas:'ROAS التعادل', s_split:'تقسيم الميزانية', l_daily_s:'يومي', l_weekly_s:'أسبوعي', l_monthly_s:'شهري', l_test:'ميزانية الاختبار (20%)', l_scale:'ميزانية التوسع (80%)', s_efficiency:'كفاءة الإنفاق', l_spendpct:'الإنفاق كنسبة من الإيرادات', s_forecast:'توقعات 6 أشهر (نمو 10% شهرياً)', t_period:'الفترة', t_spend:'الإنفاق', t_revenue:'الإيرادات', t_gross:'إجمالي الربح', t_net:'صافي الربح', t_status:'الحالة', b_profitable:'مربح', b_near:'قرب التعادل', b_loss:'خسارة', margin:'هامش', clicks:'نقرة مطلوبة', above_be:'✓ فوق نقطة التعادل', below_be:'✗ تحت نقطة التعادل', months:['الشهر 1','الشهر 2','الشهر 3','الشهر 4','الشهر 5','الشهر 6'], weeks:['الأسبوع 1','الأسبوع 2','الأسبوع 3','الأسبوع 4','الأسبوع 5','الأسبوع 6'], days:['اليوم 1','اليوم 2','اليوم 3','اليوم 4','اليوم 5','اليوم 6'], footer_note:'لأغراض التخطيط فقط.' },
+  zh: { currency:'货币：', title1:'广告预算', title2:'规划工具', subtitle:'ROAS · 盈亏平衡 · 预算分配 · 收入预测', p_meta:'脸书 / Meta', p_tiktok:'TikTok 广告', p_google:'谷歌广告', p_daily:'每日', p_weekly:'每周', p_monthly:'每月', s_budget:'预算与销售', l_budget:'月度广告预算', l_budget_daily:'每日广告预算', l_budget_weekly:'每周广告预算', l_aov:'平均订单金额 (AOV)', l_cogs:'产品成本 (COGS)', s_perf:'绩效指标', l_roas:'目标 ROAS', l_cvr:'转化率 (%)', l_other:'其他费用（运费、手续费、退货、税费）', r_revenue:'预计收入', r_revenue_sub:'来自广告支出', r_profit:'净利润', r_orders:'预计订单数', r_beroas:'盈亏平衡 ROAS', s_split:'预算分配', l_daily_s:'每日', l_weekly_s:'每周', l_monthly_s:'每月', l_test:'测试预算 (20%)', l_scale:'放量预算 (80%)', s_efficiency:'支出效率', l_spendpct:'广告支出占收入百分比', s_forecast:'6个月收入预测（每月增长10%）', t_period:'周期', t_spend:'广告支出', t_revenue:'收入', t_gross:'毛利润', t_net:'净利润', t_status:'状态', b_profitable:'盈利', b_near:'接近盈亏平衡', b_loss:'亏损', margin:'利润率', clicks:'所需点击量', above_be:'✓ 高于盈亏平衡点', below_be:'✗ 低于盈亏平衡点', months:['第1个月','第2个月','第3个月','第4个月','第5个月','第6个月'], weeks:['第1周','第2周','第3周','第4周','第5周','第6周'], days:['第1天','第2天','第3天','第4天','第5天','第6天'], footer_note:'仅供规划参考，实际结果可能有所不同。' }
+};
+
+let lang = 'en', T = i18n.en, currentPlatform = 'meta';
+
+function setLang(l, btn) {
+  lang = l; T = i18n[l];
+  document.querySelectorAll('.tool-btn[onclick^="setLang"]').forEach(b => b.classList.remove('lang-active'));
+  btn.classList.add('lang-active');
+  document.body.dir = l === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.lang = l;
+  document.body.classList.remove('lang-ar','lang-zh');
+  if (l === 'ar') document.body.classList.add('lang-ar');
+  if (l === 'zh') document.body.classList.add('lang-zh');
+  applyTranslations(); calculate();
+}
+
+function applyTranslations() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.getAttribute('data-i18n');
+    if (T[k] !== undefined) el.textContent = T[k];
+  });
+  // Update period buttons
+  document.querySelectorAll('.period-btn').forEach(btn => {
+    const key = btn.getAttribute('onclick').match(/'(\w+)'/)[1];
+    const map = { daily: T.p_daily, weekly: T.p_weekly, monthly: T.p_monthly };
+    btn.textContent = map[key] || btn.textContent;
+  });
+  // Update budget label based on current period
+  document.getElementById('label-budget').textContent =
+    period === 'daily' ? T.l_budget_daily :
+    period === 'weekly' ? T.l_budget_weekly : T.l_budget;
+}
+
+function setPlatform(p, btn) {
+  currentPlatform = p;
+  document.querySelectorAll('.tab').forEach(t => t.className = 'tab');
+  btn.classList.add('active-' + p);
+  const pill = document.getElementById('platform-pill');
+  const map = { meta:['pill-meta','◆ META ADS'], tiktok:['pill-tiktok','◆ TIKTOK ADS'], google:['pill-google','◆ GOOGLE ADS'] };
+  pill.className = 'platform-pill ' + map[p][0];
+  pill.textContent = map[p][1];
+  calculate();
+}
+
+function fmt(n) {
+  const sym = getCurrency().symbol;
+  return sym + Math.round(n).toLocaleString();
+}
+function fmtD(n) {
+  const sym = getCurrency().symbol;
+  return sym + n.toLocaleString('en-GB', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function calculate() {
+  updateCurrencySymbols();
+  const inputBudget = parseFloat(document.getElementById('budget').value) || 0;
+  const budget = toMonthly(inputBudget); // always work in monthly
+  const aov    = parseFloat(document.getElementById('aov').value)    || 1;
+  const cogs   = parseFloat(document.getElementById('cogs').value)   || 0;
+  const roas   = parseFloat(document.getElementById('roas').value)   || 0;
+  const cvr    = parseFloat(document.getElementById('cvr').value)    || 1;
+  const other  = parseFloat(document.getElementById('othercosts').value) || 0;
+
+  const revenue = budget * roas, orders = revenue / aov, clicks = orders / (cvr / 100);
+  const gross = revenue - (cogs * orders), net = gross - budget - other;
+  const margin = revenue > 0 ? (net / revenue) * 100 : 0;
+  const beroas = budget > 0 ? (1 + other / budget) / (1 - cogs / aov) : 0;
+  const ok = roas >= beroas;
+
+  document.getElementById('res-revenue').textContent = fmt(revenue);
+  document.getElementById('res-profit').textContent  = fmt(net);
+  document.getElementById('res-profit').className    = 'result-value ' + (net >= 0 ? 'green' : 'red');
+  document.getElementById('res-margin').textContent  = T.margin + ' ' + margin.toFixed(1) + '%';
+  document.getElementById('res-orders').textContent  = Math.round(orders).toLocaleString();
+  document.getElementById('res-clicks').textContent  = Math.round(clicks).toLocaleString() + ' ' + T.clicks;
+  document.getElementById('res-beroas').textContent  = beroas.toFixed(2) + '×';
+  document.getElementById('res-bestatus').innerHTML  = ok
+    ? `<span class="badge badge-green">${T.above_be}</span>`
+    : `<span class="badge badge-red">${T.below_be}</span>`;
+
+  // Budget split always shows all three regardless of period
+  document.getElementById('split-daily').textContent   = fmtD(budget / 30.4);
+  document.getElementById('split-weekly').textContent  = fmtD(budget / 4.33);
+  document.getElementById('split-monthly').textContent = fmt(budget);
+  document.getElementById('split-test').textContent    = fmtD(budget * 0.2);
+  document.getElementById('split-scale').textContent   = fmtD(budget * 0.8);
+
+  const pct = revenue > 0 ? Math.min((budget / revenue) * 100, 100) : 0;
+  document.getElementById('spend-bar').style.width = pct + '%';
+  document.getElementById('spend-bar').className   = 'bar-fill ' + (pct < 30 ? 'green' : pct < 50 ? '' : 'red');
+  document.getElementById('bar-pct').textContent   = pct.toFixed(1) + '%';
+
+  // Forecast — periods array based on selection
+  const periodLabels = period === 'daily' ? T.days : period === 'weekly' ? T.weeks : T.months;
+  const tbody = document.getElementById('forecast-body');
+  tbody.innerHTML = '';
+  let g = 1;
+  periodLabels.forEach((m, i) => {
+    if (i > 0) g *= 1.10;
+    const mB = budget*g, mR = mB*roas, mO = mR/aov, mG = mR-(cogs*mO), mN = mG-mB-other;
+    const s = mN>=0 ? `<span class="badge badge-green">${T.b_profitable}</span>`
+      : mN>-200 ? `<span class="badge badge-orange">${T.b_near}</span>`
+      : `<span class="badge badge-red">${T.b_loss}</span>`;
+    tbody.innerHTML += `<tr><td>${m}</td><td>${fmt(mB)}</td><td>${fmt(mR)}</td><td class="${mG>=0?'pos':'neg'}">${fmt(mG)}</td><td class="${mN>=0?'pos':'neg'}">${fmt(mN)}</td><td>${s}</td></tr>`;
+  });
+}
+
+calculate();
+</script>
+</body>
+</html>
